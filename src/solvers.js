@@ -13,66 +13,31 @@
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 
-window._boardIndex = function(n) {
-  var output = [];
-  for (var r = 0; r < n; r++) {
-    for (var c = 0; c < n; c++) {
-      output.push([r, c]);
-    }
-  }
-  return output;
-};
-
 window.findNRooksSolution = function(n) {
   var newBoard = new Board({n: n});
-  var coordinates = this._boardIndex(n);
   var solution = {};
   var foundSolution = false;
-  var columnsOccupied = [];
-  var rowsOccupied = [];
-
-  var toggle = function(coordinate) {
-    var row = coordinates[coordinate][0];
-    var column = coordinates[coordinate][1];
-    newBoard.togglePiece(row, column);
-    if (newBoard.get(row)[column] === 1) {
-      columnsOccupied.push(column);
-      rowsOccupied.push(row);
-    } else {
-      columnsOccupied.splice(columnsOccupied.indexOf(column), 1);
-      rowsOccupied.splice(rowsOccupied.indexOf(row), 1);
-    }
-  };
   
-  var placeRooks = function(startCoordinate, columnsOccupied, rowsOccupied) {
-    if (foundSolution) {
-      return;
-    }
-    for (var i = startCoordinate; i < coordinates.length; i++) {
-      if (foundSolution) {
-        return;
-      }
-      //
-      if (rowsOccupied.indexOf(coordinates[i][0]) === -1 || columnsOccupied.indexOf(coordinates[i][1]) === -1) {
-        toggle(i);
-      } else {
-        break;
-      }
+  var placeRooks = function(startCoordinate) {
+    if (foundSolution) { return; }
+    for (var i = startCoordinate; i < newBoard.coordinates().length; i++) {
+      if (foundSolution) { return; }
+      if (newBoard.rowsOccupied.indexOf(newBoard.coordinates()[i][0]) === -1 || newBoard.columnsOccupied.indexOf(newBoard.coordinates()[i][1]) === -1) {
+        newBoard.toggle(i);
+      } else { break; }
       if (newBoard._numPieces() === n) {
         if (!newBoard.hasAnyRooksConflicts()) {
           $.extend(true, solution, newBoard);
           foundSolution = true;
           return;
-        } else {
-          toggle(i);
-        }  
+        } else { newBoard.toggle(i); }  
       } else {
-        placeRooks(i + 1, columnsOccupied, rowsOccupied);
-        toggle(i);
+        placeRooks(i + 1);
+        newBoard.toggle(i);
       }
     }
   };
-  placeRooks(0, columnsOccupied, rowsOccupied);
+  placeRooks(0);
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution.rows();
 };
@@ -80,7 +45,7 @@ window.findNRooksSolution = function(n) {
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
   var newBoard = new Board({n: n});
-  var coordinates = this._boardIndex(n);
+  var coordinates = newBoard.coordinates();
   var solutionCount = 0;
   
   var placeRooks = function(startCoordinate) {
@@ -108,7 +73,7 @@ window.countNRooksSolutions = function(n) {
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
   var newBoard = new Board({n: n});
-  var coordinates = this._boardIndex(n);
+  var coordinates = newBoard.coordinates();
   var solution = {};
   var foundSolution = false;
   
@@ -146,7 +111,7 @@ window.findNQueensSolution = function(n) {
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
   var newBoard = new Board({n: n});
-  var coordinates = this._boardIndex(n);
+  var coordinates = newBoard.coordinates();
   var solutionCount = 0;
   
   var placeQueens = function(startCoordinate) {

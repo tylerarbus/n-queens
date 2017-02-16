@@ -6,6 +6,35 @@
 
   window.Board = Backbone.Model.extend({
 
+    //non-function properties
+    coordinates: function() {
+      var _coordinates = _.once(function(n) {
+        var output = [];
+        for (var r = 0; r < n; r++) {
+          for (var c = 0; c < n; c++) {
+            output.push([r, c]);
+          }
+        }
+        return output;
+      });
+      return _coordinates(this.rows().length);
+    },
+
+    //function properties
+    
+    toggle: function(coordinate) {
+      var row = this.coordinates()[coordinate][0];
+      var column = this.coordinates()[coordinate][1];
+      this.togglePiece(row, column);
+      if (this.get(row)[column] === 1) {
+        this.columnsOccupied.push(column);
+        this.rowsOccupied.push(row);
+      } else {
+        this.columnsOccupied.splice(this.columnsOccupied.indexOf(column), 1);
+        this.rowsOccupied.splice(this.rowsOccupied.indexOf(row), 1);
+      }
+    },
+
     initialize: function (params) {
       if (_.isUndefined(params) || _.isNull(params)) {
         console.log('Good guess! But to use the Board() constructor, you must pass it an argument in one of the following formats:');
@@ -16,6 +45,8 @@
       } else {
         this.set('n', params.length);
       }
+      this.columnsOccupied = [];
+      this.rowsOccupied = [];
     },
 
     rows: function() {
