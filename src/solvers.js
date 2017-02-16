@@ -25,32 +25,42 @@ window._boardIndex = function(n) {
 
 window.findNRooksSolution = function(n) {
   //create a new chess board with n rows
-  var newBoard = new Board({n : n});
+  var newBoard = new Board({n: n});
   var coordinates = this._boardIndex(n);
   var rooksOnBoard = 0;
-
-  //put a rook down on the board, iterating through each start point
-  for (var i = 0; i < coordinates.length; i++) {
-    newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
-    rooksOnBoard++;
-
-    //check if rooks = n
-    if (rooksOnBoard === n) {
-      if (!newBoard.hasAnyRooksConflicts()){
-        console.log('Single solution for ' + n + ' rooks:', JSON.stringify(newBoard));
-        return newBoard;
-      }
-    } //if not enough rooks on board, then
-    else {
-      //call recursion
+  var solution = {};
+  var foundSolution = false;
+  
+  var placeRooks = function(startCoordinate) {
+    //put a rook down on the board, iterating through each start point
+    if (foundSolution) {
+      return solution;
     }
-    //end of iterator
-    newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
-  }
-
-
-    //place another rook on all the next possible spots
-        //repeat for n rooks
+    for (var i = startCoordinate; i < coordinates.length; i++) {
+      newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+      rooksOnBoard++;
+      //check if rooks = n
+      if (newBoard._numPieces() === n) {
+        if (!newBoard.hasAnyRooksConflicts()) {
+          $.extend(true, solution, newBoard);
+          foundSolution = true;
+          return solution;
+        } else {
+          newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+          rooksOnBoard--; 
+        }  
+      } else {
+        //call recursion
+        placeRooks(i + 1);
+        newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+        rooksOnBoard--; 
+      }
+    }
+  };
+  debugger;
+  placeRooks(0);
+  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
+  return solution.rows();
 };
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
