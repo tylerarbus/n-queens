@@ -34,7 +34,7 @@ window.findNRooksSolution = function(n) {
   var placeRooks = function(startCoordinate) {
     //put a rook down on the board, iterating through each start point
     if (foundSolution) {
-      return solution;
+      return;
     }
     for (var i = startCoordinate; i < coordinates.length; i++) {
       newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
@@ -44,7 +44,7 @@ window.findNRooksSolution = function(n) {
         if (!newBoard.hasAnyRooksConflicts()) {
           $.extend(true, solution, newBoard);
           foundSolution = true;
-          return solution;
+          return;
         } else {
           newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
           rooksOnBoard--; 
@@ -57,7 +57,6 @@ window.findNRooksSolution = function(n) {
       }
     }
   };
-  debugger;
   placeRooks(0);
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution.rows();
@@ -65,7 +64,31 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  //create a new chess board with n rows
+  var newBoard = new Board({n: n});
+  var coordinates = this._boardIndex(n);
+  var solutionCount = 0;
+  
+  var placeRooks = function(startCoordinate) {
+    //put a rook down on the board, iterating through each start point
+    for (var i = startCoordinate; i < coordinates.length; i++) {
+      newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+      //check if rooks = n
+      if (newBoard._numPieces() === n) {
+        if (!newBoard.hasAnyRooksConflicts()) {
+          solutionCount++;
+          newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+        } else {
+          newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+        }  
+      } else {
+        //call recursion
+        placeRooks(i + 1);
+        newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+      }
+    }
+  };
+  placeRooks(0);
 
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
