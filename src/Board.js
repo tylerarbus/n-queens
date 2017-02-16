@@ -32,7 +32,7 @@
           return row[i];
         });
         columns.push(column);
-      };
+      }
       return columns;
     },
 
@@ -171,7 +171,7 @@
         for (var k = 0; k < this.rows().length; k++) {
           if (this.hasMajorDiagonalConflictAt(i, k)) {
             return true;
-          };
+          }
         }
       }   
       return false;
