@@ -96,15 +96,64 @@ window.countNRooksSolutions = function(n) {
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
-
+//create a new chess board with n rows
+  var newBoard = new Board({n: n});
+  var coordinates = this._boardIndex(n);
+  var solution = {};
+  var foundSolution = false;
+  
+  var placeQueens = function(startCoordinate) {
+    if (foundSolution) {
+      return;
+    }
+    for (var i = startCoordinate; i < coordinates.length; i++) {
+      newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+      if (newBoard._numPieces() === n) {
+        if (!newBoard.hasAnyQueensConflicts()) {
+          $.extend(true, solution, newBoard);
+          foundSolution = true;
+          return;
+        } else {
+          newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+        }  
+      } else {
+        placeQueens(i + 1);
+        newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+      }
+    }
+  };
+  placeQueens(0);
+  if (!foundSolution) {
+    solution = new Board({n: n});
+  }
   console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
-  return solution;
+  return solution.rows();
 };
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  var newBoard = new Board({n: n});
+  var coordinates = this._boardIndex(n);
+  var solutionCount = 0;
+  
+  var placeQueens = function(startCoordinate) {
+    for (var i = startCoordinate; i < coordinates.length; i++) {
+      newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+      if (newBoard._numPieces() === n) {
+        if (!newBoard.hasAnyQueensConflicts()) {
+          solutionCount++;
+          newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+        } else {
+          newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+        }  
+      } else {
+        placeQueens(i + 1);
+        newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
+      }
+    }
+  };
+  //debugger
+  placeQueens(0);
 
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
