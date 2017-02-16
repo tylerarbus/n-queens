@@ -24,56 +24,68 @@ window._boardIndex = function(n) {
 };
 
 window.findNRooksSolution = function(n) {
-  //create a new chess board with n rows
   var newBoard = new Board({n: n});
   var coordinates = this._boardIndex(n);
-  var rooksOnBoard = 0;
   var solution = {};
   var foundSolution = false;
+  var columnsOccupied = [];
+  var rowsOccupied = [];
+
+  var toggle = function(coordinate) {
+    var row = coordinates[coordinate][0];
+    var column = coordinates[coordinate][1];
+    newBoard.togglePiece(row, column);
+    if (newBoard.get(row)[column] === 1) {
+      columnsOccupied.push(column);
+      rowsOccupied.push(row);
+    } else {
+      columnsOccupied.splice(columnsOccupied.indexOf(column), 1);
+      rowsOccupied.splice(rowsOccupied.indexOf(row), 1);
+    }
+  };
   
-  var placeRooks = function(startCoordinate) {
-    //put a rook down on the board, iterating through each start point
+  var placeRooks = function(startCoordinate, columnsOccupied, rowsOccupied) {
     if (foundSolution) {
       return;
     }
     for (var i = startCoordinate; i < coordinates.length; i++) {
-      newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
-      rooksOnBoard++;
-      //check if rooks = n
+      if (foundSolution) {
+        return;
+      }
+      //
+      if (rowsOccupied.indexOf(coordinates[i][0]) === -1 || columnsOccupied.indexOf(coordinates[i][1]) === -1) {
+        toggle(i);
+      } else {
+        break;
+      }
       if (newBoard._numPieces() === n) {
         if (!newBoard.hasAnyRooksConflicts()) {
           $.extend(true, solution, newBoard);
           foundSolution = true;
           return;
         } else {
-          newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
-          rooksOnBoard--; 
+          toggle(i);
         }  
       } else {
-        //call recursion
-        placeRooks(i + 1);
-        newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
-        rooksOnBoard--; 
+        placeRooks(i + 1, columnsOccupied, rowsOccupied);
+        toggle(i);
       }
     }
   };
-  placeRooks(0);
+  placeRooks(0, columnsOccupied, rowsOccupied);
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution.rows();
 };
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  //create a new chess board with n rows
   var newBoard = new Board({n: n});
   var coordinates = this._boardIndex(n);
   var solutionCount = 0;
   
   var placeRooks = function(startCoordinate) {
-    //put a rook down on the board, iterating through each start point
     for (var i = startCoordinate; i < coordinates.length; i++) {
       newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
-      //check if rooks = n
       if (newBoard._numPieces() === n) {
         if (!newBoard.hasAnyRooksConflicts()) {
           solutionCount++;
@@ -82,7 +94,6 @@ window.countNRooksSolutions = function(n) {
           newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
         }  
       } else {
-        //call recursion
         placeRooks(i + 1);
         newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
       }
@@ -96,7 +107,6 @@ window.countNRooksSolutions = function(n) {
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-//create a new chess board with n rows
   var newBoard = new Board({n: n});
   var coordinates = this._boardIndex(n);
   var solution = {};
@@ -107,6 +117,9 @@ window.findNQueensSolution = function(n) {
       return;
     }
     for (var i = startCoordinate; i < coordinates.length; i++) {
+      if (foundSolution) {
+        return;
+      }
       newBoard.togglePiece(coordinates[i][0], coordinates[i][1]);
       if (newBoard._numPieces() === n) {
         if (!newBoard.hasAnyQueensConflicts()) {
@@ -152,9 +165,7 @@ window.countNQueensSolutions = function(n) {
       }
     }
   };
-  //debugger
   placeQueens(0);
-
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
