@@ -7,35 +7,28 @@
   window.Board = Backbone.Model.extend({
 
     //non-function properties
-    coordinates: function() {
-      var _coordinates = _.once(function(n) {
-        var output = [];
-        for (var r = 0; r < n; r++) {
-          for (var c = 0; c < n; c++) {
-            output.push([r, c]);
-          }
+    getCoordinates: function(n) {
+      var output = [];
+      for (var r = 0; r < n; r++) {
+        for (var c = 0; c < n; c++) {
+          output.push([r, c]);
         }
-        return output;
-      });
-      return _coordinates(this.rows().length);
+      }
+      return output;
     },
 
     //function properties
     
     toggle: function(coordinate) {
-      var row = this.coordinates()[coordinate][0];
-      var column = this.coordinates()[coordinate][1];
+      var row = this.coordinates[coordinate][0];
+      var column = this.coordinates[coordinate][1];
       this.togglePiece(row, column);
       if (this.get(row)[column] === 1) {
-        this.columnsOccupied.push(column);
-        this.rowsOccupied.push(row);
         this.occupied++;
       } else {
-        this.columnsOccupied.splice(this.columnsOccupied.indexOf(column), 1);
-        this.rowsOccupied.splice(this.rowsOccupied.indexOf(row), 1);
         this.occupied--;
       }
-    },
+    }, 
 
     initialize: function (params) {
       if (_.isUndefined(params) || _.isNull(params)) {
@@ -47,9 +40,8 @@
       } else {
         this.set('n', params.length);
       }
-      this.columnsOccupied = [];
-      this.rowsOccupied = [];
       this.occupied = 0;
+      this.coordinates = this.getCoordinates(this._currentAttributes.n);
     },
 
     rows: function() {
@@ -58,17 +50,17 @@
       }, this);
     },
 
-    columns: function() {
-      var rows = this.rows();
-      var columns = [];
-      for (var i = 0; i < rows.length; i++) {
-        var column = _.map(rows, function(row) {
-          return row[i];
-        });
-        columns.push(column);
-      }
-      return columns;
-    },
+    // columns: function() {
+    //   var rows = this.rows();
+    //   var columns = [];
+    //   for (var i = 0; i < this._currentAttributes.n; i++) {
+    //     var column = _.map(rows, function(row) {
+    //       return row[i];
+    //     });
+    //     columns.push(column);
+    //   }
+    //   return columns;
+    // },
 
     togglePiece: function(rowIndex, colIndex) {
       this.get(rowIndex)[colIndex] = + !this.get(rowIndex)[colIndex];
@@ -134,48 +126,47 @@
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
       var testRow = this.get(rowIndex);
-      var count = _.reduce(testRow, function(a, b) {
-        return a + b;
-      }, 0);
-      return count > 1 ? true : false;
+      var i = 0;
+      for (var k = 0; k < this._currentAttributes.n; k++) {
+        i = i + testRow[k];
+        if (i > 1) { return true; }
+      }
+      return false;
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      var output = false;
-      for (var i = 0; i < this.rows().length; i++) {
+      for (var i = 0; i < this._currentAttributes.n; i++) {
         if (this.hasRowConflictAt(i)) {
-          output = true;
+          return true;
         }
       }
-      return output;
+      return false;
     },
-
-
 
     // COLUMNS - run from top to bottom
     // --------------------------------------------------------------
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-      var count = _.reduce(this.columns()[colIndex], function(a, b) {
-        return a + b;
-      }, 0);
-      return count > 1 ? true : false;
+      var rows = this.rows();
+      var i = 0;
+      for (var k = 0; k < this._currentAttributes.n; k++) {
+        i += rows[k][colIndex];
+        if (i > 1) { return true; }
+      }
+      return false;
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
-      var output = false;
-      for (var i = 0; i < this.columns().length; i++) {
+      for (var i = 0; i < this._currentAttributes.n; i++) {
         if (this.hasColConflictAt(i)) {
-          output = true;
+          return true;
         }
       }
-      return output;
+      return false;
     },
-
-
 
     // Major Diagonals - go from top-left to bottom-right
     // --------------------------------------------------------------
@@ -197,20 +188,21 @@
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow, startRow) {
       var columnIndex = majorDiagonalColumnIndexAtFirstRow;
       var count = 0;
-      for (var i = startRow; i < this.rows().length; i++) {
+      for (var i = startRow; i < this._currentAttributes.n; i++) {
         var row = this.rows()[i];
         if (row[columnIndex] === 1) {
           count++;
         }
+        if (count > 1) { return true; }
         columnIndex++;
       }
-      return count > 1 ? true : false;
+      return false;
     },    
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      for (var i = 0; i < this.rows().length; i++) {
-        for (var k = 0; k < this.rows().length; k++) {
+      for (var i = 0; i < this._currentAttributes.n; i++) {
+        for (var k = 0; k < this._currentAttributes.n; k++) {
           if (this.hasMajorDiagonalConflictAt(i, k)) {
             return true;
           }
@@ -226,20 +218,21 @@
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow, startRow) {
       var columnIndex = minorDiagonalColumnIndexAtFirstRow;
       var count = 0;
-      for (var i = startRow; i < this.rows().length; i++) {
+      for (var i = startRow; i < this._currentAttributes.n; i++) {
         var row = this.rows()[i];
         if (row[columnIndex] === 1) {
           count++;
         }
+        if (count > 1) { return true; }
         columnIndex--;
       }
-      return count > 1 ? true : false;
+      return false;
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      for (var i = 0; i < this.rows().length; i++) {
-        for (var k = 0; k < this.columns().length; k++) {
+      for (var i = 0; i < this._currentAttributes.n; i++) {
+        for (var k = 0; k < this._currentAttributes.n; k++) {
           if (this.hasMinorDiagonalConflictAt(i, k)) {
             return true;
           }

@@ -20,17 +20,17 @@ window.findNRooksSolution = function(n) {
   
   var placeRooks = function(startCoordinate) {
     if (foundSolution) { return; }
-    for (var i = startCoordinate; i < newBoard.coordinates().length; i++) {
+    for (var i = startCoordinate; i < newBoard.coordinates.length; i++) {
       if (foundSolution) { return; }
-      if (newBoard.rowsOccupied.indexOf(newBoard.coordinates()[i][0]) === -1 || newBoard.columnsOccupied.indexOf(newBoard.coordinates()[i][1]) === -1) {
+      newBoard.toggle(i);
+      if (newBoard.hasAnyRooksConflicts()) {
         newBoard.toggle(i);
-      } else { break; }
+        continue;
+      }      
       if (newBoard.occupied === n) {
-        if (!newBoard.hasAnyRooksConflicts()) {
-          $.extend(true, solution, newBoard);
-          foundSolution = true;
-          return;
-        } else { newBoard.toggle(i); }  
+        $.extend(true, solution, newBoard);
+        foundSolution = true;
+        return;
       } else {
         placeRooks(i + 1);
         newBoard.toggle(i);
@@ -48,17 +48,15 @@ window.countNRooksSolutions = function(n) {
   var solutionCount = 0;
   
   var placeRooks = function(startCoordinate) {
-    for (var i = startCoordinate; i < newBoard.coordinates().length; i++) {
-      if (newBoard.rowsOccupied.indexOf(newBoard.coordinates()[i][0]) === -1 || newBoard.columnsOccupied.indexOf(newBoard.coordinates()[i][1]) === -1) {
+    for (var i = startCoordinate; i < newBoard.coordinates.length; i++) {
+      newBoard.toggle(i);
+      if (newBoard.hasAnyRooksConflicts()) {
         newBoard.toggle(i);
-      } else { continue; }
+        continue;
+      }
       if (newBoard.occupied === n) {
-        if (!newBoard.hasAnyRooksConflicts()) {
-          solutionCount++;
-          newBoard.toggle(i);
-        } else {
-          newBoard.toggle(i);
-        }  
+        solutionCount++;
+        newBoard.toggle(i);  
       } else {
         placeRooks(i + 1);
         newBoard.toggle(i);
@@ -79,17 +77,17 @@ window.findNQueensSolution = function(n) {
   
   var placeQueens = function(startCoordinate) {
     if (foundSolution) { return; }
-    for (var i = startCoordinate; i < newBoard.coordinates().length; i++) {
+    for (var i = startCoordinate; i < newBoard.coordinates.length; i++) {
       if (foundSolution) { return; }
-      if (newBoard.rowsOccupied.indexOf(newBoard.coordinates()[i][0]) === -1 || newBoard.columnsOccupied.indexOf(newBoard.coordinates()[i][1]) === -1) {
+      newBoard.toggle(i);
+      if (newBoard.hasAnyQueensConflicts()) {
         newBoard.toggle(i);
-      } else { continue; }
+        continue;
+      }      
       if (newBoard.occupied === n) {
-        if (!newBoard.hasAnyQueensConflicts()) {
-          $.extend(true, solution, newBoard);
-          foundSolution = true;
-          return;
-        } else { newBoard.toggle(i); }  
+        $.extend(true, solution, newBoard);
+        foundSolution = true;
+        return;
       } else {
         placeQueens(i + 1);
         newBoard.toggle(i);
@@ -108,17 +106,15 @@ window.countNQueensSolutions = function(n) {
   var solutionCount = 0;
   
   var placeQueens = function(startCoordinate) {
-    for (var i = startCoordinate; i < newBoard.coordinates().length; i++) {
-      if (newBoard.rowsOccupied.indexOf(newBoard.coordinates()[i][0]) === -1 || newBoard.columnsOccupied.indexOf(newBoard.coordinates()[i][1]) === -1) {
+    for (var i = startCoordinate; i < newBoard.coordinates.length; i++) {
+      newBoard.toggle(i);
+      if (newBoard.hasAnyQueensConflicts()) {
         newBoard.toggle(i);
-      } else { continue; }
+        continue;
+      }      
       if (newBoard.occupied === n) {
-        if (!newBoard.hasAnyQueensConflicts()) {
-          solutionCount++;
-          newBoard.toggle(i);
-        } else {
-          newBoard.toggle(i);
-        }  
+        solutionCount++;
+        newBoard.toggle(i);
       } else {
         placeQueens(i + 1);
         newBoard.toggle(i);
