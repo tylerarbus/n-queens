@@ -29,9 +29,11 @@
       if (this.get(row)[column] === 1) {
         this.columnsOccupied.push(column);
         this.rowsOccupied.push(row);
+        this.occupied++;
       } else {
         this.columnsOccupied.splice(this.columnsOccupied.indexOf(column), 1);
         this.rowsOccupied.splice(this.rowsOccupied.indexOf(row), 1);
+        this.occupied--;
       }
     },
 
@@ -47,6 +49,7 @@
       }
       this.columnsOccupied = [];
       this.rowsOccupied = [];
+      this.occupied = 0;
     },
 
     rows: function() {
