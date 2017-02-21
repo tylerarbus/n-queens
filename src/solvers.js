@@ -20,7 +20,7 @@ window.findNRooksSolution = function(n) {
   
   var placeRooks = function(startCoordinate) {
     if (foundSolution) { return; }
-    for (var i = startCoordinate; i < newBoard.coordinates.length; i++) {
+    for (var i = startCoordinate; i < (startCoordinate + n); i++) {
       if (foundSolution) { return; }
       newBoard.toggle(i);
       if (newBoard.hasAnyRooksConflicts()) {
@@ -32,7 +32,7 @@ window.findNRooksSolution = function(n) {
         foundSolution = true;
         return;
       } else {
-        placeRooks(i + 1);
+        placeRooks(i + (n - (i % n)));
         newBoard.toggle(i);
       }
     }
@@ -48,7 +48,7 @@ window.countNRooksSolutions = function(n) {
   var solutionCount = 0;
   
   var placeRooks = function(startCoordinate) {
-    for (var i = startCoordinate; i < newBoard.coordinates.length; i++) {
+    for (var i = startCoordinate; i < (startCoordinate + n); i++) {
       newBoard.toggle(i);
       if (newBoard.hasAnyRooksConflicts()) {
         newBoard.toggle(i);
@@ -58,7 +58,7 @@ window.countNRooksSolutions = function(n) {
         solutionCount++;
         newBoard.toggle(i);  
       } else {
-        placeRooks(i + 1);
+        placeRooks(i + (n - (i % n)));
         newBoard.toggle(i);
       }
     }
@@ -77,7 +77,7 @@ window.findNQueensSolution = function(n) {
   
   var placeQueens = function(startCoordinate) {
     if (foundSolution) { return; }
-    for (var i = startCoordinate; i < newBoard.coordinates.length; i++) {
+    for (var i = startCoordinate; i < (startCoordinate + n); i++) {
       if (foundSolution) { return; }
       newBoard.toggle(i);
       if (newBoard.hasAnyQueensConflicts()) {
@@ -89,7 +89,7 @@ window.findNQueensSolution = function(n) {
         foundSolution = true;
         return;
       } else {
-        placeQueens(i + 1);
+        placeQueens(i + (n - (i % n)));
         newBoard.toggle(i);
       }
     }
@@ -106,7 +106,7 @@ window.countNQueensSolutions = function(n) {
   var solutionCount = 0;
   
   var placeQueens = function(startCoordinate) {
-    for (var i = startCoordinate; i < newBoard.coordinates.length; i++) {
+    for (var i = startCoordinate; i < (startCoordinate + n); i++) {
       newBoard.toggle(i);
       if (newBoard.hasAnyQueensConflicts()) {
         newBoard.toggle(i);
@@ -116,7 +116,7 @@ window.countNQueensSolutions = function(n) {
         solutionCount++;
         newBoard.toggle(i);
       } else {
-        placeQueens(i + 1);
+        placeQueens(i + (n - (i % n)));
         newBoard.toggle(i);
       }
     }
